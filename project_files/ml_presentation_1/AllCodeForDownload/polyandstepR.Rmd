@@ -1,0 +1,272 @@
+
+
+</br>
+</br>
+
+<center> ![](C:\Users\Griffin\Documents\SpringClasses2020\ML II\Week 3\WMlogoletters.png) </center>
+
+
+</br>  
+</br>
+
+
+## Polynomial Regression and Step Functions {.tabset .tabset-fade} 
+
+
+------------------------------------------------------
+
+###### Team 13: Jasmine Yu, Jianqi chai, David Kersey, Griffin Salyer
+* [Return to Homepage](https://griffinsalyer.github.io/team13tp1.github.io/)
+
+
+
+### Introduction
+
+</br>
+</br>
+
+Both Polynomial and Step functions are special cases in machine learning. We generally use them as fundamental starting points for other models and for direction when we want to explore into the roots of specific cases.
+
+</br>
+Page 267 in ISLR has a straightforward explanation of how and why we use Polynomial Regression.
+</br>
+Additionally, this [Wikipedia Article](https://en.wikipedia.org/wiki/Polynomial_regression) is an excellent reference for framing the idea of a polynomial regression.
+</br>
+
+
+
+
+
+
+
+
+### Data
+</br>
+</br>
+
+Initialize our data
+```{r, results="hide"}
+rm(list=ls())
+library(ISLR)
+attach(Wage)
+```
+```{r, collapse=T, comment=NA, warning=F}
+head(Wage)
+dim(Wage)
+```
+### Polynomial Regression 
+
+
+</br>
+</br>
+
+**Polynomial regression** extends the linear model by adding extra predictors, obtained by raising each of the original predictors to a power. For example, a *cubic* regression uses three variables, $X$, $X^2$, and $X^3$, as predictors. This approach provides a simple way to fit the data non-linearly.
+
+
+</br>
+</br>
+
+Below we focus on a single predictor: `age`. In this example we run a simple linear regression by calling the `poly()` function. The `poly()` function generates a basis of *orthogonal polynomials*. 
+
+```{r, collapse=T, comment=NA, warning=F}
+fit = lm(wage ~ poly(age, 4), data = Wage)
+summary(fit)$coef
+```
+</br>
+</br>
+Then, we evaluate the parameter `raw = T` - and find that there is little change or impact on plynomials of lower degrees. Orthogonal polynomials overcome many issues presented by multicolinearity and correlation between variables. Essentially, orthogonal polynomials help to expand or simplify a polynomial model that is very complex - i.e. when the degree is very high. Using `raw = T` does not affect the model in any meaningful way - that is, theres no benefit from using non-orthogonal polynomials.
+
+```{r, collapse=T, comment=NA, warning=F}
+fit2 = lm(wage ~ poly(age,4, raw =T), data = Wage) # raw = T means dont use orthogonal Polynomials
+summary(fit2)$coef
+```
+[Mathematical Basis for Othorgonal Polynomials](http://mathworld.wolfram.com/OrthogonalPolynomials.html)
+</br>
+ISLR Page 289 Covers the use of Orthogonal Polynomials in practice.
+</br>
+
+
+</br>
+</br>
+
+Next, we make a plot of the fitted function, along with the standard errors from that fit. The standard errors are used to give us *confidence bands* that we use to gauge the uncertainty of our fitted model. The dotted lines are the bands, while the solid blue line is the degree 4 fit to the Age data. Notice the points in this graph; the shape of our fit tells us the relationship that age has with Wage - and it seems to increase over time, leveling between 30 and 60, then decreasing after 60. 
+
+
+```{r, fig.width = 7, fig.height = 6, collapse=T, comment=NA, warning=F}
+agelims = range(age)
+age.grid = seq(from = agelims[1], to = agelims[2])
+preds = predict(fit, newdata = list(age = age.grid), se = TRUE)
+se.bands = cbind(preds$fit + 2*preds$se.fit, preds$fit - 2*preds$se.fit)
+
+par(mfrow = c(1,1), mar = c(4.5 ,4.5 ,1 ,1), oma = c(0,0,4,0))
+plot(age, wage, xlim = agelims, cex = .5, col = "darkgrey")
+title("Degree -4 Polynomial", outer = T)
+lines(age.grid, preds$fit, lwd = 2, col = "blue")
+matlines(age.grid, se.bands, lwd = 1, col = "blue", lty = 3)
+```
+</br></br>
+Wether or not an orthogonal set of basis functions is produced by the`poly()` function does not effect the model. Here we convince ourselves of this by looking at the fitted values obtainied in either case and find that they are identical. The difference is essentially equivalent to zero.  
+```{r, collapse=T, comment=NA, warning=F}
+preds2 = predict (fit2 ,newdata = list(age=age.grid),se=TRUE)
+max(abs(preds$fit - preds2$fit ))
+```
+
+
+</br></br></br></br>
+<font size= "4" > Picking Polynomial Degree </font> 
+</br></br>
+Here we use the `anova()` function to sort which of these functions have the predictors that we actually need. We want to use an `anova()` because it performs a hypothesis test of sorts that can tell us the simplest model that is sufficient to explain the relationship between `Age` and `Wage`. Essentially, this is an easy way to determine the degree we should be using in our model.
+</br>
+Remember,  we are comparing the p-values from model to model - with a significant p-value indicating that there is an improvement from the immediately previous model to the current degree model. For example, what we would like to see is an improvement from degree `3` to degree `4`.
+```{r, collapse=T, comment=NA, warning=F}
+fit.1 = lm(wage ~ age, data = Wage)
+fit.2 = lm(wage ~ poly(age, 2),data = Wage)
+fit.3 = lm(wage ~ poly(age, 3),data = Wage)
+fit.4 = lm(wage ~ poly(age, 4),data = Wage)
+fit.5 = lm(wage ~ poly(age, 5),data = Wage)
+anova(fit.1, fit.2, fit.3, fit.4, fit.5)
+```
+
+</br></br>
+
+Notice we can recieve the same information from both the `anova()` and the `poly()` function by looking at the p-values - as we do in fit 5.
+Then, we can compare the t-stat from the `poly()` test, and the F-stat from the `anova()` and find that they're the same - convincing us of `poly()`.
+```{r, collapse=T, comment=NA, warning=F}
+coef(summary(fit.5))
+```
+
+```{r, collapse=T, comment=NA, warning=F}
+( -11.983) ^2
+```
+
+</br></br>
+
+The idea with the `anova()`, however, is that it will work whether or not we used orthogonal polynomials - and works well when other terms are present in the model. Also, we cannot perform a `poly()` on more than one term. An example of this is below:
+```{r, collapse=T, comment=NA, warning=F}
+fit.1 = lm(wage ~ education + age, data = Wage)
+fit.2 = lm(wage ~ education + poly(age, 2), data = Wage)
+fit.3 = lm(wage ~ education + poly(age, 3), data = Wage)
+anova(fit.1, fit.2, fit.3)
+```
+</br></br>
+
+Importantly, we can do the same procedure with Cross-Validation, which is discussed in chapter 5 of ISLR
+
+</br></br>
+
+### `poly()` Alternatives
+
+</br> 
+
+<font size= "4" > `I()` Wrapper and `cbind()`: </font> 
+
+</br>
+
+
+In R, we can do Polynomial Regression in a different way. We use the `I()` *wrapper* function becuase this maintains the function the way we want it represented. Essentially, R reads the carrot key, ` ^ `, as a part of a formula normally - so here we are just telling R not to do this. Using `I(age^2)` protects us from R reading a formula meaning. 
+
+By using orthogonal polynomials, we can separately test for each coefficient. Now when we look at the summary we see that the linear, quadratic, and cubic terms are significant, but the quartic are not significant. This only works if there is only one term in the model. Otherwise, we will be using the more general ANOVA function.
+
+</br>
+
+This Graph is crudely checking the similarities in using `I()` and `poly()` by extracting the fitted values of x. When we see a straight line this means theyre essentially the same!
+
+```{r, collapse=T, comment=NA, warning=F}
+fit2a = lm(wage ~ age + I(age ^2) + I(age ^3) + I(age ^4), data = Wage)
+coef(fit2a)
+plot(fitted(fit2a), fitted(fit))
+```
+
+</br>
+</br>
+
+The `cbind()` function is just another way of doing the `I()` wrapper steps, but more compactly.
+```{r, collapse=T, comment=NA, warning=F}
+fit2b = lm(wage~cbind(age, age^2, age^3, age^4), data = Wage)
+summary(fit2b)$coef
+```
+
+</br></br></br></br>
+
+
+### Polynomial Logistic Reg
+
+</br>
+</br>
+
+Now we fit a logistic regression model to a binary response variable constructed from `Wage`. Essentially, anyone who is a 'big earner' or above the threshold of 250K a year is encoded as a 1, and everyone else is a 0. There will be a relatively small group of 1s that we are turning into a binary response.The variable is changed to a T/F variable with `I()` then `glm()` coerces it to a 0 or 1 which we can later use in plotting and for predicting. Note: Because it's a GLM, even though the polynomial is in an orthogonal basis, it's no longer strictly orthogonal, since GLM involves having weights for the observation.
+</br>
+```{r, collapse=T, comment=NA, warning=F}
+fit = glm(I(wage >250) ~ poly(age, 4), data = Wage, family = binomial) 
+```
+</br>
+
+Calculating the confidence intervals for this  is outline below. we use the default `type = 'link'` that comes with the `glm()` package, and it means that we get predictions for the *logit*. We could also specify the `type = "response"` parameter and directly compute probabilities.
+</br>
+```{r, collapse=T, comment=NA, warning=F}
+preds = predict(fit, newdata = list(age = age.grid), se = T)
+```
+```{r, collapse=T, comment=NA, warning=F}
+pfit = exp(preds$fit)/(1 + exp(preds$fit))
+se.bands.logit = cbind(preds$fit + 2*preds$se.fit, preds$fit -2*preds$se.fit)
+se.bands = exp(se.bands.logit)/(1 + exp(se.bands.logit))
+```
+
+This gives us the standard error bands, but the computations are on the logit scale. To transform we have to apply the inverse logit mapping:
+</br>
+$$p=\frac{e^\eta}{1+e^\eta}.$$
+</br>
+
+</br>
+Using `type = "response"` for this set of predictions will give us negative probabilities, so we dont actually use it! This is just to show. 
+```{r}
+preds = predict(fit, newdata = list(age = age.grid), type = 'response', se = T) 
+```
+</br>
+We have drawn the age values corresponding to the observations with wage values above `250` as gray marks on the top of the plot, and those with wage values below `250` are shown as gray marks on the bottom of the plot. We used the `jitter()` function to jitter the age values a bit so that observations with the same age value do not cover each other up. This is often called a rug plot.
+
+
+```{r}
+plot(age, I(wage >250), xlim = agelims, type = "n", ylim = c(0, .2))
+points(jitter(age), I((wage >250)/5), cex = .5, pch = "|", col = "darkgrey")
+lines(age.grid, pfit ,lwd = 2, col = "blue")
+matlines(age.grid, se.bands, lwd = 1, col = "red", lty = 3)
+```
+</br>
+
+### Step Functions
+
+</br>
+</br>
+
+
+**Step Functions** cut the range of a variable into *K* distinct regions in order to produce a qualitative variable. This has the effect of fitting a piecewise constant function.
+</br></br>
+
+Lets look at what happens when we have a cut the size of 4, we see the number of values in each bin or cut. The `cut()` function returns a categorical variable, that `lm()` then creates a set of dummy variables for use in the regression.
+```{r, collapse=T, comment=NA, warning=F}
+table(cut(age, 4))
+```
+</br>
+now we fit the cut, and can see the regression results
+```{r, collapse=T, comment=NA, warning=F}
+fit = lm(wage ~ cut(age, 4), data = Wage)
+summary(fit)$coef
+```
+The `age<33.5` category is left out, so the intercept coefficient of `$94,160` can be interpreted as the average salary for those under 33.5 years of age, and the other coefficients can be interpreted as the average additional salary for those in the other age groups
+
+</br></br>
+Now we do the same as above, but specify our own bin range using the `breaks = c()` parameter of `cut()` 
+```{r, collapse=T, comment=NA, warning=F}
+table(cut(age, breaks = c(18,25,35,45,55,85)))
+```
+
+Regressing it in this way returns a different set of coefficients than before!
+```{r, collapse=T, comment=NA, warning=F}
+fit = lm(wage~cut(age, breaks = c(18,25,35,45,55,85)), data = Wage)
+summary(fit)$coef
+```
+The `age<18` is also left out in this step function, and the intercept coefficient of `$76,871` can be interpreted as the average salary for those under 18 years of age, and the other coefficients can be interpreted as the average additional salary for those in the other age groups. This seems really high for that age group, and that comes from the nature of this function - there are very few data points for the 18 and under age group and so a regression in this area may not provide the most accurate results.
+
+</br></br></br></br>
+

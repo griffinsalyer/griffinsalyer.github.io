@@ -1,0 +1,65 @@
+---
+output: html_document
+---
+
+## Polynomial Regression and Step Function Overview {.tabset .tabset-fade}
+
+* [Return to Homepage](https://griffinsalyer.github.io/team13tp1.github.io/)
+
+### Objectives
+
+#### 1. Explore various methods to construct a polynomial regression model 
+a. Demonstrate the similarity between the models by predicting `wage` as a function of `age`
+b. Indicate different methods for choosing what order polynomial to use
+
+#### 2. Construct a polynomial logistic regression model
+a. Use `age` to predict whether someone makes over $250K per year
+
+#### 3. Build and interpret a step function
+a. Demonstrate special use cases for step functions
+
+### Polynomial Regression
+
+Standard linear regression can have significant limitations in terms of predictive power. Linearity is almost always an aproximation and rarely captures the true nature of the data. 
+
+Simply put, polynomial regression extends the linear model by adding extra predictors, obtained by raising each of the original predictors to a power.
+
+
+The image below represents a case where the data demonstrates more complexity than a linear approximation can capture. This is an example of **under-fitting**. To overcome under-fitting we need to increase the complexity of our model.
+</br></br></br></br></br></br>
+![ ](C:\Users\david\Documents\Spring2020\MLII\TP1\LinearFit.PNG)
+</br></br></br></br>
+<font size="2"> Source: https://towardsdatascience.com/polynomial-regression-bbe8b9d97491 </font>
+</br></br></br></br></br></br>
+
+The data is fit with a second order polynomial (quadratic curve) and captures some of the additional complexity of the data. 
+![ ](C:\Users\david\Documents\Spring2020\MLII\TP1\degree2fit.PNG)
+</br></br></br></br>
+<font size="2"> Source: https://towardsdatascience.com/polynomial-regression-bbe8b9d97491 </font>
+</br></br></br></br></br></br>
+
+A third order polynomial captures even more complexity in the data.  
+![ ](C:\Users\david\Documents\Spring2020\MLII\TP1\degree3fit.PNG)
+</br></br></br></br>
+<font size="2"> Source: https://towardsdatascience.com/polynomial-regression-bbe8b9d97491 </font>
+</br></br></br></br></br></br>
+
+![ ](C:\Users\david\Documents\Spring2020\MLII\TP1\Comparison.PNG)
+</br></br></br></br>
+<font size="2"> Source: https://towardsdatascience.com/polynomial-regression-bbe8b9d97491 </font>
+</br></br></br></br></br></br>
+ 
+### Step Function
+
+Step functions can be an improvement over polynomial regression. Using polynomial functions of the features as predictors in a linear model imposes a global structure on the non-linear function of X. Using step functions avoids imposing a global structure on the function. 
+
+With step functions, we break the range of X into bins and fit a different constant to each bin. This amounts to converting a continuous variable (Y) to an ordered categorical variable.  
+
+In other words, step functions cut the range of a variable into K distinct regions in order to produce a qualitative variable. This has the effect of fitting a piecewise constant function.
+
+Step functions are valuable for specific cases where you want to segment your data and reduce the impact of points in one segment from affecting the model in other segments. Essentially, we want to capture the true nature of each segment individually within the whole model. This is what we mean by a global structure. 
+
+The left image displays the fitted values from a least squares regression of wage (in thousands of dollars) using step functions of age. The right image displays a step logistic model with the binary response of wage > $250k. 
+![step](C:\Users\david\Documents\Spring2020\MLII\TP1\stepwise.PNG)
+</br></br></br></br>
+<font size="2"> Source: Introduction to Statistical Learning </font>
