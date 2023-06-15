@@ -70,7 +70,42 @@ input, select, textarea {
 	-webkit-appearance: none;
 	-ms-appearance: none;
 	appearance: none;
+
 }
+.container {
+	background-color: #fdfdfd;
+	height: 100%;
+	width: 100%;
+	border-radius: 6px;
+	box-shadow: 0 4px 28px rgba(123,151,158,.25);
+	border: 1px solid #d6dee1;
+	padding: 1rem;
+	overflow: scroll;
+  }
+  h1 {
+	margin: 0;
+	text-align: center;
+  }
+  
+  /* custom scrollbar */
+  ::-webkit-scrollbar {
+	width: 20px;
+  }
+  
+  ::-webkit-scrollbar-track {
+	background-color: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+	background-color: #d6dee1;
+	border-radius: 20px;
+	border: 6px solid transparent;
+	background-clip: content-box;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+	background-color: #a8bbbf;
+  }
 
 /* Basic */
 
@@ -2350,7 +2385,7 @@ input, select, textarea {
 /* Image */
 
 	.image {
-		border: 0;
+		border: 2px;
 		display: inline-block;
 		position: relative;
 	}
