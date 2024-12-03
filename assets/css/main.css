@@ -3256,6 +3256,7 @@ input, select, textarea {
 		position: relative;
 		width: 100vw;
 		padding: 0 0 10rem 0;
+		right: 20vw; /* remove to restore formatting */
 	}
 
 		#wrapper:before {
@@ -3278,7 +3279,8 @@ input, select, textarea {
 		#wrapper section {
 			display: grid;
 			grid-template-areas: "header content" "footer content";
-			grid-template-columns: 50vw 50vw;
+			grid-template-columns: 50vw 70vw;
+			/* grid-template-columns: 50vw 50vw; */
 			grid-template-rows: 1fr;
 		}
 
