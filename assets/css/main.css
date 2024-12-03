@@ -3312,7 +3312,8 @@ input, select, textarea {
 
 			#wrapper section > .content {
 				grid-area: content;
-				max-width: 60rem;
+				/* max-width: 60rem; */ 
+				max-width: 80rem; /* remove to restore formatting of right grid*/
 				position: relative;
 			}
 
