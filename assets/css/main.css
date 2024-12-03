@@ -3217,7 +3217,8 @@ input, select, textarea {
 				background-position: center;
 				background-repeat: no-repeat;
 				background-size: contain;
-				color: #49fcd4; /* icon color */
+				/* color: #49fcd4; */ /* icon color */
+				color: #000000;
 				display: block;
 				font-size: 1.25rem;
 				height: 3.25rem;
